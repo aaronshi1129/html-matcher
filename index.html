@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Matcher</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        :root {
+            --bg-gradient-1: #0f172a;
+            --bg-gradient-2: #1e293b;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --accent-1: #8b5cf6;
+            --accent-2: #6366f1;
+            --accent-3: #3b82f6;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --tag-bg-1: rgba(139, 92, 246, 0.15);
+            --tag-bg-2: rgba(99, 102, 241, 0.15);
+            --desc-bg-1: rgba(59, 130, 246, 0.15);
+            --desc-bg-2: rgba(14, 165, 233, 0.15);
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-1), var(--bg-gradient-2));
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .game-card {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-xl);
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+        }
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        h1 {
+            color: var(--text-primary);
+            font-size: 2.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--accent-1), var(--accent-3));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .game-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            gap: 1.5rem;
+        }
+        
+        .level-selector {
+            display: flex;
+            align-items: center;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--card-border);
+        }
+        
+        .level-selector label {
+            font-weight: 500;
+            margin-right: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        select {
+            background-color: transparent;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+            outline: none;
+        }
+        
+        select option {
+            background-color: var(--bg-gradient-2);
+            color: var(--text-primary);
+        }
+        
+        .stats {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat-icon {
+            color: var(--accent-2);
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .game-board {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .column-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, transparent, transparent);
+            transition: background 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .tag-card {
+            background: linear-gradient(135deg, var(--tag-bg-1), var(--tag-bg-2));
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .description-card {
+            background: linear-gradient(135deg, var(--desc-bg-1), var(--desc-bg-2));
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        
+        .selected {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        }
+        
+        .selected::before {
+            background: linear-gradient(to right, var(--accent-1), var(--accent-2));
+        }
+        
+        .matched {
+            opacity: 0.6;
+            pointer-events: none;
+            border-color: var(--success);
+        }
+        
+        .matched::before {
+            background: linear-gradient(to right, var(--success), #34d399);
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 0.875rem 1.75rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        button:hover::before {
+            opacity: 1;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.reset {
+            background: linear-gradient(135deg, #475569, #334155);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .instructions {
+            margin-top: 2.5rem;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+        
+        .instructions h3 {
+            color: var(--accent-3);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+            animation: modalAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid var(--card-border);
+        }
+        
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal h2 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            background: linear-gradient(to right, var(--accent-1), var(--accent-3));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .modal p {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .modal button {
+            padding: 0.875rem 2.5rem;
+        }
+        
+        /* Animation for card match */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(139, 92, 246, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        /* Icons */
+        .icon {
+            display: inline-block;
+            width: 1.5em;
+            height: 1.5em;
+            stroke-width: 0;
+            stroke: currentColor;
+            fill: currentColor;
+            vertical-align: middle;
+        }
+        
+        /* Footer styles */
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--card-border);
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .footer a {
+            color: var(--accent-2);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .footer a:hover {
+            color: var(--accent-1);
+            transform: translateY(-1px);
+        }
+        
+        .footer-divider {
+            margin: 0 0.75rem;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+        
+        .footer-icon {
+            width: 1.2em;
+            height: 1.2em;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .game-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .stats {
+                justify-content: space-between;
+            }
+            
+            .game-card {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .modal-content {
+                padding: 2rem;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .footer-divider {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-card">
+            <div class="header-section">
+                <h1>HTML Matcher</h1>
+                <p class="subtitle">Test your HTML knowledge by matching tags and attributes with their descriptions</p>
+            </div>
+            
+            <div class="game-header">
+                <div class="level-selector">
+                    <label for="level">Difficulty Level:</label>
+                    <select id="level">
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                    </select>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                        </svg>
+                        Score: <span id="score" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                        </svg>
+                        Time: <span id="timer" class="stat-value">60</span>s
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-board">
+                <div>
+                    <div class="column-header">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                        </svg>
+                        HTML Tags & Attributes
+                    </div>
+                    <div class="column" id="tags-column"></div>
+                </div>
+                <div>
+                    <div class="column-header">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/>
+                        </svg>
+                        Descriptions
+                    </div>
+                    <div class="column" id="descriptions-column"></div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button id="start-button">Start Game</button>
+                <button id="reset-button" class="reset hidden">Reset Game</button>
+            </div>
+            
+            <div class="instructions">
+                <h3>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                    </svg>
+                    How to Play
+                </h3>
+                <ol>
+                    <li>Select a difficulty level and click "Start Game"</li>
+                    <li>Each game features 10 random HTML tags or attributes</li>
+                    <li>Click on an HTML tag or attribute from the left column</li>
+                    <li>Then click on its matching description from the right column</li>
+                    <li>Match all pairs before time runs out!</li>
+                    <li>Each correct match earns 10 points, incorrect matches cost 2 points</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-content">
+                <a href="https://www.aaronshi.cc" target="_blank" rel="noopener noreferrer">
+                    <svg class="footer-icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    </svg>
+                    Go to AaronShi.cc
+                </a>
+                <span class="footer-divider">|</span>
+                <a href="https://app.aaronshi.cc" target="_blank" rel="noopener noreferrer">
+                    <svg class="footer-icon" viewBox="0 0 24 24">
+                        <path d="M12 11.55C9.64 9.35 6.48 8 3 8v11c3.48 0 6.64 1.35 9 3.55 2.36-2.19 5.52-3.55 9-3.55V8c-3.48 0-6.64 1.35-9 3.55zM12 8c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/>
+                    </svg>
+                    Back to AaronShi.cc App
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div id="game-over-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="result-title">Game Over</h2>
+            <p id="result-message">Your score: <span id="final-score">0</span></p>
+            <button id="play-again-button">Play Again</button>
+        </div>
+    </div>
+    
+    <script>
+        // HTML elements data by difficulty level
+        const htmlElements = {
+            beginner: [
+                { tag: '<!DOCTYPE html>', description: 'Defines the document type and HTML version' },
+                { tag: '<html>', description: 'The root element of an HTML page' },
+                { tag: '<html lang="...">', description: 'Specifies the language of the document content' },
+                { tag: '<head>', description: 'Contains meta-information about the document' },
+                { tag: '<title>', description: 'Defines the title of the document shown in the browser tab' },
+                { tag: '<body>', description: 'Contains the visible page content' },
+                { tag: '<h1>', description: 'Defines the most important heading' },
+                { tag: '<p>', description: 'Defines a paragraph' },
+                { tag: '<div>', description: 'Defines a division or section in an HTML document' },
+                { tag: '<br>', description: 'Inserts a single line break' },
+                { tag: 'class="..."', description: 'Specifies one or more class names for an element' },
+                { tag: 'width="..."', description: 'Specifies the width of an element' },
+                { tag: 'height="..."', description: 'Specifies the height of an element' }
+            ],
+            intermediate: [
+                { tag: '<a>', description: 'Creates a hyperlink to another page or resource' },
+                { tag: '<img>', description: 'Embeds an image in the document' },
+                { tag: '<ul>', description: 'Defines an unordered list' },
+                { tag: '<ol>', description: 'Defines an ordered list' },
+                { tag: '<li>', description: 'Defines a list item' },
+                { tag: '<input>', description: 'Creates an interactive control for web-based forms' },
+                { tag: '<nav>', description: 'Defines a section of navigation links' },
+                { tag: 'href="..."', description: 'Specifies the URL of a linked resource' },
+                { tag: 'src="..."', description: 'Specifies the URL of an external resource like an image' },
+                { tag: 'alt="..."', description: 'Provides alternative text for an image' },
+                { tag: 'type="..."', description: 'Specifies the type of an element or media content' },
+                { tag: 'placeholder="..."', description: 'Provides a hint about what to enter in an input field' },
+                { tag: 'modal', description: 'Attribute that indicates an element functions as a modal dialog' },
+                { tag: 'alert', description: 'Attribute that marks an element as an important message to the user' },
+                { tag: 'popover', description: 'Attribute that creates a popup element that appears when triggered' }
+            ],
+            advanced: [
+                { tag: '<script>', description: 'Contains client-side JavaScript' },
+                { tag: '<meta>', description: 'Provides metadata about the HTML document' },
+                { tag: '<link>', description: 'Links to external resources like CSS files' },
+                { tag: '<svg>', description: 'Container for SVG graphics' },
+                { tag: '<header>', description: 'Represents introductory content for a section or page' },
+                { tag: '<footer>', description: 'Defines a footer for a document or section' },
+                { tag: '<section>', description: 'Defines a section in a document' },
+                { tag: '<article>', description: 'Defines independent, self-contained content' },
+                { tag: '<aside>', description: 'Defines content aside from the main content' },
+                { tag: 'rel="stylesheet"', description: 'Specifies the relationship between the current document and linked resource' },
+                { tag: 'src="script.js"', description: 'Specifies the source file of a script' },
+                { tag: 'type="text/css"', description: 'Specifies the media type of a style sheet' },
+                { tag: 'type="audio/mpeg"', description: 'Specifies the MIME type for audio files' },
+                { tag: 'modal="true"', description: 'Modern HTML attribute that creates a native modal dialog' },
+                { tag: 'alert="true"', description: 'Modern HTML attribute for creating accessible alert messages' },
+                { tag: 'popover="auto"', description: 'Modern HTML attribute that creates a toggleable popup element' }
+            ]
+        };
+        
+        // Game variables
+        let score = 0;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let selectedCard = null;
+        let matchedPairs = 0;
+        let totalPairs = 0;
+        let gameActive = false;
+        const pairsPerGame = 10; // Number of pairs to show per game
+        
+        // DOM elements
+        const tagsColumn = document.getElementById('tags-column');
+        const descriptionsColumn = document.getElementById('descriptions-column');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const startButton = document.getElementById('start-button');
+        const resetButton = document.getElementById('reset-button');
+        const levelSelector = document.getElementById('level');
+        const gameOverModal = document.getElementById('game-over-modal');
+        const resultTitle = document.getElementById('result-title');
+        const resultMessage = document.getElementById('result-message');
+        const finalScore = document.getElementById('final-score');
+        const playAgainButton = document.getElementById('play-again-button');
+        
+        // Make sure modal is hidden at start
+        gameOverModal.classList.add('hidden');
+        
+        // Shuffle array function
+        function shuffle(array) {
+            const result = [...array];
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+            return result;
+        }
+        
+        // Get random subset of elements
+        function getRandomElements(elements, count) {
+            const shuffled = shuffle(elements);
+            return shuffled.slice(0, count);
+        }
+        
+        // Start the game
+        function startGame() {
+            console.log("Starting game");
+            
+            // Hide modal if visible
+            hideModal();
+            
+            // Reset game state
+            score = 0;
+            timeLeft = 60;
+            matchedPairs = 0;
+            gameActive = true;
+            selectedCard = null;
+            
+            // Get selected level
+            const level = levelSelector.value;
+            const allElements = htmlElements[level];
+            
+            // Select random elements for this game session
+            const gameElements = getRandomElements(allElements, pairsPerGame);
+            totalPairs = gameElements.length;
+            
+            // Update UI
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeLeft;
+            tagsColumn.innerHTML = '';
+            descriptionsColumn.innerHTML = '';
+            startButton.classList.add('hidden');
+            resetButton.classList.remove('hidden');
+            
+            // Create and shuffle cards
+            const tags = gameElements.map(item => ({ content: item.tag, type: 'tag' }));
+            const descriptions = gameElements.map(item => ({ content: item.description, type: 'description' }));
+            
+            const shuffledTags = shuffle(tags);
+            const shuffledDescriptions = shuffle(descriptions);
+            
+            // Create tag cards
+            shuffledTags.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card tag-card';
+                card.textContent = item.content;
+                card.dataset.content = item.content;
+                card.dataset.type = item.type;
+                card.onclick = function() { handleCardClick(this); };
+                tagsColumn.appendChild(card);
+            });
+            
+            // Create description cards
+            shuffledDescriptions.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card description-card';
+                card.textContent = item.content;
+                card.dataset.content = item.content;
+                card.dataset.type = item.type;
+                card.onclick = function() { handleCardClick(this); };
+                descriptionsColumn.appendChild(card);
+            });
+            
+            // Start timer
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+        
+        // Handle card click
+        function handleCardClick(card) {
+            if (!gameActive || card.classList.contains('matched')) {
+                return;
+            }
+            
+            // If same card clicked again, do nothing
+            if (card === selectedCard) {
+                return;
+            }
+            
+            // If no card selected yet
+            if (!selectedCard) {
+                selectedCard = card;
+                card.classList.add('selected');
+                return;
+            }
+            
+            // If card of same type clicked
+            if (card.dataset.type === selectedCard.dataset.type) {
+                selectedCard.classList.remove('selected');
+                selectedCard = card;
+                card.classList.add('selected');
+                return;
+            }
+            
+            // Check for match
+            let isMatch = false;
+            
+            // Get current level data
+            const level = levelSelector.value;
+            const elements = htmlElements[level];
+            
+            // Check if the pair matches
+            for (const element of elements) {
+                if ((selectedCard.dataset.type === 'tag' && card.dataset.type === 'description' &&
+                     selectedCard.dataset.content === element.tag && card.dataset.content === element.description) ||
+                    (selectedCard.dataset.type === 'description' && card.dataset.type === 'tag' &&
+                     selectedCard.dataset.content === element.description && card.dataset.content === element.tag)) {
+                    isMatch = true;
+                    break;
+                }
+            }
+            
+            if (isMatch) {
+                // It's a match!
+                selectedCard.classList.remove('selected');
+                card.classList.add('pulse');
+                selectedCard.classList.add('pulse');
+                
+                setTimeout(() => {
+                    card.classList.remove('pulse');
+                    selectedCard.classList.remove('pulse');
+                    card.classList.add('matched');
+                    selectedCard.classList.add('matched');
+                    selectedCard = null;
+                }, 500);
+                
+                // Update score
+                score += 10;
+                scoreDisplay.textContent = score;
+                
+                // Check for game completion
+                matchedPairs++;
+                if (matchedPairs >= totalPairs) {
+                    endGame(true);
+                }
+            } else {
+                // Not a match
+                card.classList.add('selected');
+                
+                // Briefly show both cards, then hide
+                setTimeout(function() {
+                    selectedCard.classList.remove('selected');
+                    card.classList.remove('selected');
+                    selectedCard = null;
+                }, 1000);
+                
+                // Penalty
+                if (score > 0) {
+                    score -= 2;
+                    scoreDisplay.textContent = score;
+                }
+            }
+        }
+        
+        // End the game
+        function endGame(isWin) {
+            // Stop the timer
+            clearInterval(timerInterval);
+            timerInterval = null;
+            gameActive = false;
+            
+            // Update UI
+            finalScore.textContent = score;
+            
+            if (isWin) {
+                resultTitle.textContent = "Congratulations!";
+                resultMessage.innerHTML = `You matched all pairs!<br>Your score: <span id="final-score">${score}</span>`;
+            } else {
+                resultTitle.textContent = "Time's Up!";
+                resultMessage.innerHTML = `You matched ${matchedPairs} out of ${totalPairs} pairs.<br>Your score: <span id="final-score">${score}</span>`;
+            }
+            
+            // Show modal
+            showModal();
+        }
+        
+        // Reset the game
+        function resetGame() {
+            // Clear timer
+            clearInterval(timerInterval);
+            timerInterval = null;
+            
+            // Reset game state
+            gameActive = false;
+            selectedCard = null;
+            
+            // Update UI
+            startButton.classList.remove('hidden');
+            resetButton.classList.add('hidden');
+            tagsColumn.innerHTML = '';
+            descriptionsColumn.innerHTML = '';
+            scoreDisplay.textContent = '0';
+            timerDisplay.textContent = '60';
+            
+            // Hide modal if visible
+            hideModal();
+        }
+        
+        // Show/hide modal functions
+        function showModal() {
+            gameOverModal.classList.remove('hidden');
+        }
+        
+        function hideModal() {
+            gameOverModal.classList.add('hidden');
+        }
+        
+        // Event listeners
+        startButton.onclick = function() {
+            console.log("Start button clicked");
+            startGame();
+        };
+        
+        resetButton.onclick = function() {
+            console.log("Reset button clicked");
+            resetGame();
+        };
+        
+        playAgainButton.onclick = function() {
+            console.log("Play again button clicked");
+            hideModal();
+            resetGame();
+            startGame();
+        };
+        
+        levelSelector.onchange = function() {
+            console.log("Level changed to:", this.value);
+            if (gameActive) {
+                resetGame();
+            }
+        };
+        
+        // Initialize
+        console.log("Game initialized");
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93ff71dd30f24a93',t:'MTc0NzI3ODY1My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
